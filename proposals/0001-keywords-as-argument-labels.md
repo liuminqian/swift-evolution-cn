@@ -10,7 +10,7 @@
 
 ## 动机
 
-在某些函数的某个参数来说，最好的参数标签很可能就是语言的关键字。比如这样一个函数，找出一个collection中某个value的index。它的朴素命名应该是`indexOf(_:in:)`:
+对于某些函数的某个参数来说，最好的参数标签很可能就是语言的关键字。比如这样一个函数，找出一个collection中某个value的index。它的朴素命名应该是`indexOf(_:in:)`:
 
 	indexOf(value, in: collection)
 
@@ -18,7 +18,7 @@
 
 	indexOf(value, `in`: collection)
 
-在Swift定义新API时，作者倾向选择非关键字(比如，这里的`within`)，甚至在这里是不理想的选择。不过，当在 忽略不必要字("omit needless words")的启发下引入Objective-C APIs时，这个问题也就出现了。比如：
+在Swift定义新API时，作者倾向选择非关键字(比如，这里的`within`)，即使是不理想的选择。不过，当引入Objective-C APIs时，在 忽略不必要字("omit needless words")的启发下，这个问题也就暴露出来了。比如：
 
 	event.touchesMatching([.Began, .Moved], `in`: view)
 	NSXPCInterface(`protocol`: SomeProtocolType.Protocol)
@@ -27,9 +27,9 @@
 
 除了`inout`, `var`, `let`之外所有的关键字都被允许作为参数标签。对语法有三个方面的影响：
 
-* 调用表达式，如上面的例子。这里，我们没有语法歧义，因为在带括号的表达式中，"<keyword> \`:\`"不会出现在任何语法产生式中。这也是目前最重要的例子。
+* 调用语句，如上面的例子。这里没有语法歧义，因为在带括号的语句中，"<keyword> \`:\`"不会出现在任何语法产生式中。这也是目前最重要的例子。
 
-* 函数/下标/初始化器的声明：除了上面被排除的关键字之外，这里也没有任何歧义，因为关键字(`:`或者`_`)后面总是跟着一个标识符。如：
+* 函数/下标/初始化器的声明：除了上面被排除的关键字之外，也没有任何歧义，因为关键字(`:`或者`_`)后面总是跟着一个标识符。如：
 
 ```swift
 func touchedMatching(phase: NSTouchPhase, in view: NSView?) -> Set<NSTouch>
@@ -49,10 +49,40 @@ func addParameter(name: String, `inout`: Bool)
 
 ## 对现有代码的影响
 
-这个功能是严格可加(strictly additive)的，并且不会破坏现有代码：它只会让之前一些不规范的代码变规范，并不会改变任何规范代码的行为。
+这个功能是严格可加(strictly additive)的，并且不会破坏现有代码：它只会让之前一些不规范的代码变规范，并不会出现改变任何规范代码的行为。
 
 ## 其他选择
 
-最主要的其他选择就是啥也不做：Swift APIs将继续避免使用关键字作为参数标签，即使其是作为标签最自然的词。并且现已引入的APIs继续使用反引号，或者需要重命名。这个选择将遗留近200个(现已引入的)APIs，这些APIs需要某种程度的重命名或者在调用点反引号。
+最主要的一个其他选择就是啥也不做：Swift APIs将继续避免使用关键字作为参数标签，即使其是作为标签最自然的词。并且现已引入的APIs继续使用反引号，或者需要重命名。这个选择将遗留近200个(现已引入的)APIs，这些APIs需要某种程度的重命名或者在调用点反引号。
 
 另外一个选择是聚焦在`in`本身，这个在目前现已引入的APIs中最常见的。在现已引入的APIs的一次简单调研中发现，`in`在关键字冲突中占据了90%的比例。此外，`in`是唯一一个在Swift语法中2个地方(循环和闭包)使用的关键字。因此它可以是上下文敏感的。不过，这个解决方案更为复杂了点(因为它需要更多上下文敏感的关键字解析)，也更缺乏通用性。
+
+---
+译者备注：
+
+SE-00001所表达的是，
+
+* 允许所有关键字作为参数标签，除了一种情况：
+* 当声明或者调用一个函数/初始化器/下标时，参数introducers(var/let/inout)不能当作参数标签
+
+举例：
+
+之前
+
+	func touchesMatching(phase: NSTouchPhase, `in` view: NSView?) -> Set<NSTouch>
+
+现在可以这样表达
+
+	func touchesMatching(phase: NSTouchPhase, in view: NSView?) -> Set<NSTouch>
+
+随后的调用，之前是
+
+	event.touchesMatching(phase, `in`: view)
+
+现在是
+	
+	event.touchesMatching(phase, in: view)
+
+
+
+
