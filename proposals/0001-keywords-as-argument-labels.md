@@ -1,4 +1,5 @@
-# 允许(大多数)关键字作为参数标签
+允许(大多数)关键字作为参数标签
+---
 
 * 提议: [SE-0001](https://github.com/apple/swift-evolution/blob/master/proposals/0001-keywords-as-argument-labels.md)
 * 作者: [Doug Gregor](https://github.com/DougGregor)
